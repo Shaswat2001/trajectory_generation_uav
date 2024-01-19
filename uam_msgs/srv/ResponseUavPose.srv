@@ -1,0 +1,3 @@
+int64 get_pose
+---
+geometry_msgs/Pose pose_uav

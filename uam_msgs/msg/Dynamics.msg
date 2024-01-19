@@ -1,0 +1,3 @@
+std_msgs/Float32MultiArray q_des
+std_msgs/Float32MultiArray qdot_des
+std_msgs/Float32MultiArray qdotdot_des

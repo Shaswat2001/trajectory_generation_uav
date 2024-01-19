@@ -1,0 +1,126 @@
+<sdf version='1.7'>
+  <model name='rmaluam'>
+    <!-- <contact>0</contact> -->
+    <link name='base_link'>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>4.68848</mass>
+        <inertia>
+          <ixx>0.430475</ixx>
+          <ixy>-1.79316e-05</ixy>
+          <ixz>-1.23322e-06</ixz>
+          <iyy>0.430587</iyy>
+          <iyz>4.52382e-07</iyz>
+          <izz>0.592651</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://simulator/meshes/bebop_model.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://simulator/meshes/bebop_model.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <!-- Define a reflective very dark gray material -->
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <!-- <sensor name="collision_sensor" type="contact">
+        <plugin name="gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so"> 
+            <bumpertopicname>bumper_vals</bumpertopicname>
+            <framename>world</framename>
+            <alwayson>true</alwayson>
+            <updaterate>1000.0</updaterate>
+        </plugin>
+          <always_on>true</always_on>
+          <update_rate>1000.</update_rate>
+          <contact>
+            <collision>base_link_collision</collision>
+          </contact>
+      </sensor> -->
+    </link>
+
+    <joint name='lidar_joint' type='fixed'>
+      <pose relative_to='base_link'>0 0 0.0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>lidar_link</child>
+      <axis>
+        <xyz>0 0 0</xyz>
+      </axis>
+    </joint>
+    <link name='lidar_link'>
+      <pose relative_to='lidar_joint'>0 0 0.1 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>1e-5</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-6</iyy>
+          <iyz>0</iyz>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <visual name='lidar_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <!-- <collision name='lidar_link_collision'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+            <cylinder>
+            <radius>0.01</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+      </collision> -->
+      <sensor name="laser" type="ray">
+          <pose> 0 0 0 0 0 0 </pose>
+          <visualize>true</visualize>
+          <always_on>true</always_on>
+          <update_rate>10</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>360</samples>
+                <resolution>1.00000</resolution>
+                <min_angle>0.000000</min_angle>
+                <max_angle>6.280000</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.120000</min>
+              <max>1</max>
+              <resolution>0.015000</resolution>
+            </range>
+          </ray>
+          <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+              <output_type>sensor_msgs/LaserScan</output_type>
+              <frame_name>lidar_link</frame_name>
+          </plugin>
+      </sensor>
+    </link>
+    <plugin name="ros_kinematic_uav" filename="libros_kinematic_uav.so"/>
+  </model>
+</sdf>

@@ -1,0 +1,5 @@
+std_msgs/String uav_pose
+std_msgs/String manip_joint
+---
+geometry_msgs/Pose pose_uam
+geometry_msgs/Pose manip_difference

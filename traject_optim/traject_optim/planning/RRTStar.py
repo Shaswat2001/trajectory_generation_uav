@@ -27,7 +27,9 @@ class RRTStar:
     def main(self):
 
         end_node = self.plan()
-        self.plot.animate_rrt_star("RRT*",self.visited,self.extract_path(end_node))
+        path = self.extract_path(end_node)
+        print([i.get_coordinates() for i in path])
+        self.plot.animate_rrt_star("RRT*",self.visited,path)
 
     def plan(self):
 

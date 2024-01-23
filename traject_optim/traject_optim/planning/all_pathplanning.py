@@ -8,7 +8,6 @@ from Visualize import Visualize
 if __name__ == "__main__":
 
     print("The Motion Planning Algorithm Library")
-    planner = input("Enter the planning algorithm to run : ")
     grid_size=[[0,0,0.5],[50,30,5]]
     delta = 0.5
 
@@ -19,5 +18,5 @@ if __name__ == "__main__":
 
     grid = Graph(grid_size,delta)
 
-    algorithm = RRTStar.RRTStar(start,goal,grid,10,0.5,1,10,20)    
+    algorithm = RRTStar.RRTStar(start,goal,grid,1000,0.5,1,10,20)    
     algorithm.main()

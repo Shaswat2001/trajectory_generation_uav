@@ -17,9 +17,9 @@ class Graph(Map):
     
     def generate_random_node(self):
 
-        return Node(np.random.uniform(self.grid_size[0][0] + self.delta, self.grid_size[1][0] - self.delta),
-                    np.random.uniform(self.grid_size[0][1] + self.delta, self.grid_size[1][1] - self.delta),
-                    np.random.uniform(self.grid_size[0][2] + self.delta, self.grid_size[1][2] - self.delta))
+        return Node(np.round(np.random.uniform(self.grid_size[0][0] + self.delta, self.grid_size[1][0] - self.delta),2),
+                    np.round(np.random.uniform(self.grid_size[0][1] + self.delta, self.grid_size[1][1] - self.delta),2),
+                    np.round(np.random.uniform(self.grid_size[0][2] + self.delta, self.grid_size[1][2] - self.delta),2))
 
     def onSegment(self,p, q, r):
 

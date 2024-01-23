@@ -75,25 +75,18 @@ class RRTStar:
         x_new-- Object of class Node
         '''
 
-        x_new=[0]*2
         # Coordinates of the nodes
         x_samp=x_sampNode.get_coordinates()
         x_near=x_nearNode.get_coordinates()
 
         dist = calculate_distance(x_sampNode,x_nearNode)
 
-        dx = x_samp[0] - x_near[0]
-        dy = x_samp[1] - x_near[1]
-        theta = math.atan2(dy,dx)
-        dist = min(self.nodeDist, dist)
-
-        x_new[0]=x_near[0] + dist*math.cos(theta)
-        x_new[1]=x_near[1] + dist*math.sin(theta)
-
-        newNode = Node(x_new[0],x_new[1])
+        if dist > self.nodeDist:
+            x_new = x_near + (x_samp - x_near)*self.nodeDist/dist
+            x_sampNode = Node(*(x_new))
         
         # returns an object of class Node
-        return newNode
+        return x_sampNode
     
     def check_Node_goalRadius(self,new_node):
         '''

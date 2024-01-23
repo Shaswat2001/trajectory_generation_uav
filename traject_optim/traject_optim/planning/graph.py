@@ -13,53 +13,13 @@ class Graph(Map):
     def __init__(self,grid_size,delta):
         super().__init__(grid_size)
 
-        self.graph = self.generate_cost_graph()
         self.delta = delta
-    
-    def generate_cost_graph(self):
-        '''
-        Returns the graph for A* and Dijkstra Algorithm
-        '''
-        cost_graph=[]
-        # Loop through the entire grid
-        for i in range(self.grid_size[0]+1):
-            for j in range(self.grid_size[1]+1):
-                # Object of class Node is created
-                node=Node(i,j)
-                # Checks if the node is in an Obstacle
-                cost_graph.append(node)
-
-        return cost_graph
-
-    def get_vertices(self):
-        '''
-        Returns all the nodes in the graph
-        '''
-        #list of vertices in the graph
-        return self.graph
-    
-    def same_node_graph(self,node):
-        '''
-        Returns a Node equivalent to node from graph
-
-        Arguments:
-        node-- Instance of class Node
-        graph-- Free configuration Space (Instance of class Graph)
-
-        Returns:
-        eq_node-- Instance of class Node
-        '''
-        # loops through all the vertices in the graph
-        for eq_node in self.graph:
-            # Checks if two Nodes are same
-            if check_nodes(eq_node,node):
-                return eq_node
-        return 0
     
     def generate_random_node(self):
 
-        return Node(np.random.uniform(self.delta, self.grid_size[0] - self.delta),
-                         np.random.uniform(self.delta, self.grid_size[1] - self.delta))
+        return Node(np.random.uniform(self.grid_size[0][0] + self.delta, self.grid_size[1][0] - self.delta),
+                    np.random.uniform(self.grid_size[0][1] + self.delta, self.grid_size[1][1] - self.delta),
+                    np.random.uniform(self.grid_size[0][2] + self.delta, self.grid_size[1][2] - self.delta))
 
     def onSegment(self,p, q, r):
 
@@ -104,7 +64,7 @@ class Graph(Map):
 
         
         points = [p1,p2]
-        x_coords, y_coords = zip(*points)
+        x_coords, y_coords, _ = zip(*points)
         A = vstack([x_coords,ones(len(x_coords))]).T
         m, c = lstsq(A, y_coords,rcond=None)[0]
 

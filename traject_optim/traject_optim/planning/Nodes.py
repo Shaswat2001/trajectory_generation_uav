@@ -1,18 +1,20 @@
 import math
-
+import numpy as np
 class Node:
     '''
     The class describes a Node
     '''
-    def __init__(self,x,y):
+    def __init__(self,x,y,z):
+
         self.x=x
         self.y=y
+        self.z = z
         self.dir = 8
         self.dx = [-1, 0, 1,1,-1,0,1,-1]
         self.dy = [-1,-1,-1,0, 0,1,1, 1]
 
         # for RRT and FMT*
-        self.cost=math.inf
+        self.cost = math.inf
         self.flag = "VALID"
         self.parent=None
 
@@ -20,35 +22,25 @@ class Node:
         '''
         Returns the coordinates of a node
         '''
-        return (self.x,self.y)
+        return np.array([self.x,self.y,self.z])
 
     def get_inv_coordinates(self):
         '''
         Returns the inverted coordinates of a node
         '''
-        return (self.y,self.x)
+        return np.array([self.y,self.z,self.z])
     
-    def get_neighbours(self):
-
-        nbrlist = []
-        for i in range(self.dir):
-
-            nbrX = self.x + self.dx[i]
-            nbrY = self.y + self.dy[i]
-            nbrlist.append(Node(nbrX,nbrY))
-        
-        return nbrlist
-
 def calculate_distance(node1,node2):
     '''
     Returns the euclidean distance between two nodes
     '''
     # the x and y coordinates of a node
-    (x1,y1)=node1.get_coordinates()
-    (x2,y2)=node2.get_coordinates()
+
+    crd1 = node1.get_coordinates()
+    crd2 = node2.get_coordinates()
 
     # euclidean distance
-    euc_distance = math.sqrt((x1-x2)**2 + (y1-y2)**2)
+    euc_distance = np.linalg.norm(crd1 - crd2)
 
     return euc_distance
 

@@ -17,10 +17,10 @@ def generate_launch_description():
         )
     # Constants for paths to different files and folders
     gazebo_models_path = 'models'
-    package_name = 'uamv0'
+    package_name = 'simulator'
     robot_name_in_model = 'parrot_bebop'
     sdf_model_path = 'models/parrot_bebop/model_lidar.sdf'
-    world_file_path = 'worlds/random_obstacles.world'
+    world_file_path = 'world/uav_two_obs.world'
     # Pose where we want to spawn the robot
     spawn_x_val = '0.0'
     spawn_y_val = '0.0'

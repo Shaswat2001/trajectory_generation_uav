@@ -1,0 +1,4 @@
+traject_optim/src/__pycache__/*.pyc
+traject_optim/traject_optim/planning/__pycache__/*.pyc
+traject_optim/traject_optim/traj_gen/__pycache__/*.pyc
+

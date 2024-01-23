@@ -19,7 +19,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://simulator/meshes/bebop_model.stl</uri>
+            <uri>model://parrot_bebop/meshes/bebop_model.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -28,7 +28,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://simulator/meshes/bebop_model.stl</uri>
+            <uri>model://parrot_bebop/meshes/bebop_model.stl</uri>
           </mesh>
         </geometry>
         <material>

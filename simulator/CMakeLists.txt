@@ -42,10 +42,7 @@ install(DIRECTORY launch
 install(DIRECTORY rviz
   DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY urdf
-  DESTINATION share/${PROJECT_NAME})
-
-install(DIRECTORY meshes
+install(DIRECTORY models
   DESTINATION share/${PROJECT_NAME})
 
 add_library(ros_kinematic_uav SHARED scripts/ros_kinematic_uav.cpp)

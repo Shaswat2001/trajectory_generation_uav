@@ -1,6 +1,6 @@
 import random
-from Visualize import Visualize
-from Nodes import Node,calculate_distance,check_NodeIn_list
+from .Visualize import Visualize
+from .Nodes import Node,calculate_distance,check_NodeIn_list
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,15 +21,17 @@ class RRTStar:
 
         self.visited = [self.start]
         self.path = []
-
+        
         self.plot = Visualize(start,goal,graph.obs_boundary,graph.obs_rectangle,graph.obs_circle)
 
-    def main(self):
+    def main(self,animate = False):
 
         end_node = self.plan()
         path = self.extract_path(end_node)
-        print([i.get_coordinates() for i in path])
-        self.plot.animate_rrt_star("RRT*",self.visited,path)
+        if animate:
+            self.plot.animate_rrt_star("RRT*",self.visited,path)
+        
+        return path
 
     def plan(self):
 
@@ -176,13 +178,13 @@ class RRTStar:
     def extract_path(self,node_end):
 
         bkt_list=[]
-        bkt_list.append(self.goal)
+        bkt_list.append(self.goal.get_coordinates())
         node = node_end
 
         while node.parent != None:
 
-            bkt_list.append(node)
+            bkt_list.append(node.get_coordinates())
             node = node.parent
-        bkt_list.append(node)
+        bkt_list.append(node.get_coordinates())
 
         return bkt_list

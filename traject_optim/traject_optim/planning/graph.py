@@ -1,9 +1,9 @@
-from Nodes import Node,calculate_distance,check_nodes,check_NodeIn_list
+from .Nodes import Node
 from numpy import ones,vstack
 from numpy.linalg import lstsq
 import random
 import numpy as np
-from map import Map
+from .map import Map
 import math
 
 class Graph(Map):

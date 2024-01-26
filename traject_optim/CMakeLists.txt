@@ -20,9 +20,11 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
+find_package(px4_msgs REQUIRED)
 
 install(PROGRAMS
   src/main.py
+  src/test_path_planning.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

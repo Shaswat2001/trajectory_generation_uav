@@ -1,11 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from scipy.spatial.transform import Rotation as Rot
-from Nodes import check_nodes
-import math
-import numpy as np
-import os
-import glob
 
 class Visualize:
 

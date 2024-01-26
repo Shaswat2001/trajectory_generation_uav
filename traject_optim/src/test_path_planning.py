@@ -1,8 +1,6 @@
-from Nodes import Node
-from map import Map
-from graph import Graph
-import RRTStar
-from Visualize import Visualize
+from traject_optim.planning.Nodes import Node
+from traject_optim.planning.graph import Graph
+from traject_optim.planning import RRTStar
 
 # Creating main window
 if __name__ == "__main__":
@@ -19,4 +17,4 @@ if __name__ == "__main__":
     grid = Graph(grid_size,delta)
 
     algorithm = RRTStar.RRTStar(start,goal,grid,1000,0.5,1,10,20)    
-    algorithm.main()
+    path = algorithm.main()

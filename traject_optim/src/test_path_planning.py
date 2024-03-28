@@ -22,7 +22,10 @@ if __name__ == "__main__":
 
     grid = Graph(grid_size,delta)
 
-    algorithm = RRTStar.RRTStar(start,goal,grid,3000,1,1,2,20)    
-    path = algorithm.main()
+    path = None
+
+    while path is None:
+        algorithm = RRTStar.RRTStar(start,goal,grid,3000,1,1,2,20)   
+        path = algorithm.main()
 
     print(path)

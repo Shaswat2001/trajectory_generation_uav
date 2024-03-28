@@ -45,6 +45,9 @@ install(DIRECTORY rviz
 install(DIRECTORY models
   DESTINATION share/${PROJECT_NAME})
 
+install(DIRECTORY worlds
+  DESTINATION share/${PROJECT_NAME})
+
 add_library(ros_kinematic_uav SHARED scripts/ros_kinematic_uav.cpp)
 ament_target_dependencies(ros_kinematic_uav rclcpp std_msgs geometry_msgs rosgraph_msgs uam_msgs)
 target_link_libraries(ros_kinematic_uav ${GAZEBO_LIBRARIES})

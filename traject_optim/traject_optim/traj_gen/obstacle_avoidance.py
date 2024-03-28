@@ -4,22 +4,28 @@ import numpy as np
 from mpl_toolkits import mplot3d
 from math import sqrt
 
-path = [np.array([ 9.,  9., 20.]), np.array([ 8.93131367,  8.74293685, 20.15347266]), np.array([ 8.48409273,  7.0691827 , 21.15274264]), np.array([ 8.03687178,  5.39542856, 22.15201262]), np.array([ 7.58965084,  3.72167442, 23.15128261]), np.array([ 7.00676904,  1.8860638 , 23.6905251 ]), np.array([ 6.32,  0.44, 23.59]), np.array([ 6.  ,  0.49, 22.64]), np.array([ 5.72, -0.58, 22.19]), np.array([ 4.84, -1.39, 21.98]), np.array([ 3.85, -0.73, 21.57]), np.array([ 3.17, -0.65, 21.75]), np.array([ 1.69, -0.15, 21.68]), np.array([ 1.29645157,  0.2830421 , 21.49636242]), np.array([ 0.,  0., 20.])]
-path = np.array(path)
-path = path/10
-
-path = np.concatenate((path,np.zeros((path.shape[0],9))),axis=1)
-X0 = path[0]
-Xm = path[1]
-Xm1 = path[2]
-Xf = path[2]
+Ts = 0.1
+mass = 0.5
+g = 9.81
+R = 0.25
+reg1 = 0
+reg2 = 1e-4
+reg3 = 0.0001
+C1 = 1e-3
+C2 = 1e-2
+C3 = 1
+C4 = 1
+C5 = 0.25
+C6 = 5
+Kf = 0.0611
+Km = 0.0015
+I = np.array([3.9,4.4,4.9])*1e-3
+L = 0.225
+N = 140
+Wh = sqrt((mass*g)/(Kf*4))
 
 obs2 = [-0.4, -0.4, 5, 0.5, 0.6, 2]
-# obs2 = [0.4, 0.4, 5, -0.6, -0.6, 2]
-# obs1 = [-0.4, -0.4, 5, 0.5, 0.6, 2]
 obs1 = [0.4, 0.4, 5, -0.6, -0.6, 2]
-# obs3 = [41, 24, 5, -33, -22, 2]
-# obs2 = []
 
 def data_for_cylinder_along_z(center_x,center_y,radius,height_z):
     z = np.linspace(0, height_z, 50)
@@ -29,61 +35,33 @@ def data_for_cylinder_along_z(center_x,center_y,radius,height_z):
     y_grid = radius*np.sin(theta_grid) + center_y
     return x_grid,y_grid,z_grid
 
-def objective_function():
-    global x,u,Wh,time,l1,l2,l3,l4,l5,l6,C1,C2,C3,C4,reg1,reg2,reg3
+def objective_function(l1,l2,time,x,u):
+    global Wh,C1,C2,C3,C4,reg1,reg2,reg3
 
     obj1 = C1*casadi.sumsqr(Wh - u)
     obj2 = C2*(casadi.sumsqr(casadi.diff(u[0])) + casadi.sumsqr(casadi.diff(u[1])) + casadi.sumsqr(casadi.diff(u[2])) + casadi.sumsqr(casadi.diff(u[3])))
     obj3 = C3*reg3*(casadi.sumsqr(x[9:12,:]))
-    obj4 = C4*reg2*(casadi.sumsqr(l1) + casadi.sumsqr(l2) + casadi.sumsqr(l3) + casadi.sumsqr(l4) + casadi.sumsqr(l5) + casadi.sumsqr(l6))
+    obj4 = C4*reg2*(casadi.sumsqr(l1) + casadi.sumsqr(l2))
     obj5 = C5*casadi.sum2(time) + C6*casadi.sumsqr(time)
     return obj1 +  obj2 + obj3 + obj4 + obj5
 
-if __name__ == "__main__":
-    N = 140
+def generate_trajectory(path):
+    # print(path)
+    global Wh,C1,C2,C3,C4,reg1,reg2,reg3
+
     print(f"the total length : {N}")
     opti = casadi.Opti()
 
     x = opti.variable(12,N+1)
     u = opti.variable(4,N)
-    # time = np.ones((N+1,1))
     time = opti.variable(1,N+1)
 
     l1 = opti.variable(6,N+1)
     l2 = opti.variable(6,N+1)
-    l3 = opti.variable(6,N+1)
-    l4 = opti.variable(6,N+1)
-    l5 = opti.variable(6,N+1)
-    l6 = opti.variable(6,N+1)
 
-    # Ts = np.zeros((N+1))
-    # for i in range(1,len(path)):
-
-    #     dist = np.linalg.norm(path[i] - path[i-1])
-    #     Ts[i] = np.round(dist/0.5,2)
-    # print(Ts)
-    Ts = 0.1
-    mass = 0.5
-    g = 9.81
-    R = 0.25
-    reg1 = 0
-    reg2 = 1e-4
-    reg3 = 0.0001
-    C1 = 1e-3
-    C2 = 1e-2
-    C3 = 1
-    C4 = 1
-    C5 = 0.25
-    C6 = 5
-    Kf = 0.0611
-    Km = 0.0015
-    I = np.array([3.9,4.4,4.9])*1e-3
-    L = 0.225
-    Wh = sqrt((mass*g)/(Kf*4))
-    print(Wh)
     A = np.concatenate((np.eye(3),-np.eye(3)),axis=0)
 
-    function = objective_function()
+    function = objective_function(l1,l2,time,x,u)
 
     opti.minimize(function)
     opti.subject_to(casadi.vec(u) <= casadi.vec(7.8*np.ones(u.shape)))
@@ -115,15 +93,8 @@ if __name__ == "__main__":
 
     opti.subject_to(casadi.vec(l1) >= casadi.vec(np.zeros(l1.shape)))
     opti.subject_to(casadi.vec(l2) >= casadi.vec(np.zeros(l2.shape)))
-    opti.subject_to(casadi.vec(l3) >= casadi.vec(np.zeros(l3.shape)))
-    opti.subject_to(casadi.vec(l4) >= casadi.vec(np.zeros(l4.shape)))
-    opti.subject_to(casadi.vec(l5) >= casadi.vec(np.zeros(l5.shape)))
-    opti.subject_to(casadi.vec(l6) >= casadi.vec(np.zeros(l6.shape)))
 
-    opti.subject_to(casadi.vec(x[:,0]) == casadi.vec(X0.reshape(x[:,0].shape)))
-
-    for i in range(10,150,10):
-
+    for i in range(0,150,10):
         opti.subject_to(casadi.vec(x[:,i]) == casadi.vec(path[int(i/10)].reshape(x[:,i].shape)))
     # opti.subject_to(casadi.vec(x[:,1000]) == casadi.vec(Xm1.reshape(x[:,1000].shape)))
     # opti.subject_to(casadi.vec(x[:,-1]) == casadi.vec(Xf.reshape(x[:,-1].shape)))
@@ -167,10 +138,6 @@ if __name__ == "__main__":
     opti.set_initial(u,Wh*np.ones(u.shape))
     opti.set_initial(l1,0.05*np.ones(l1.shape))
     opti.set_initial(l2,0.05*np.ones(l2.shape))
-    opti.set_initial(l3,0.05*np.ones(l3.shape))
-    opti.set_initial(l4,0.05*np.ones(l4.shape))
-    opti.set_initial(l5,0.05*np.ones(l5.shape))
-    opti.set_initial(l6,0.05*np.ones(l6.shape))
 
     opti.solver('ipopt',{'print_time': True, 'error_on_fail': False})
     # sol = opti.solve()
@@ -206,14 +173,5 @@ if __name__ == "__main__":
             print("time:", opti.debug.value(time))
             print("l1:", opti.debug.value(l1))
             print("l2:", opti.debug.value(l2))
-            print("l3:", opti.debug.value(l3))
-            print("l4:", opti.debug.value(l4))
-            print("l5:", opti.debug.value(l5))
-            print("l6:", opti.debug.value(l6))
         else:
             print("Debug information not available.")
-    # print(opti.debug.value(x))
-
-    # print(sol.value(l1))
-
-# print(sol.value(x))

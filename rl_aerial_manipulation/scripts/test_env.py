@@ -8,9 +8,8 @@ import numpy as np
 import rclpy
 import time
 import matplotlib.pyplot as plt
-# sys.path.insert(0, '/Users/shaswatgarg/Documents/WaterlooMASc/StateSpaceUAV')
 
-from rl_aerial_manipulation.agent import DDPG,TD3,SAC,SoftQ,RCRL,SEditor,USL,SAAC,IDEA1,IDEA2,IDEA3,IDEA4
+from rl_aerial_manipulation.agent import DDPG,TD3,SAC,SoftQ
 from rl_aerial_manipulation.pytorch_model import GaussianPolicyNetwork, PolicyNetwork,QNetwork,VNetwork,PhasicPolicyNetwork,PhasicQNetwork,ConstraintNetwork,MultiplierNetwork,SafePolicyNetwork,RealNVP,FeatureExtractor
 
 from rl_aerial_manipulation.replay_buffer.Uniform_RB import ReplayBuffer,VisionReplayBuffer
@@ -28,7 +27,7 @@ def build_parse():
 
     parser = argparse.ArgumentParser(description="RL Algorithm Variables")
 
-    parser.add_argument("Environment",nargs="?",type=str,default="uam_vel",help="Name of OPEN AI environment")
+    parser.add_argument("Environment",nargs="?",type=str,default="uav_vel_obs_gazebo1",help="Name of OPEN AI environment")
     parser.add_argument("input_shape",nargs="?",type=int,default=[],help="Shape of environment state")
     parser.add_argument("n_actions",nargs="?",type=int,default=[],help="shape of environment action")
     parser.add_argument("max_action",nargs="?",type=float,default=[],help="Max possible value of action")
@@ -160,17 +159,13 @@ if __name__=="__main__":
     args.safe_max_action = env.safe_action_max
     args.safe_min_action = -env.safe_action_max
 
-    for i in ["TD3"]:
+    if args.Algorithm == "DDPG":
+        agent = DDPG.DDPG(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = replay_buffer,exploration = OUActionNoise)
+    elif args.Algorithm == "TD3":
+        agent = TD3.TD3(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
+    elif args.Algorithm == "SAC":
+        agent = SAC.SAC(args = args,policy = GaussianPolicyNetwork,critic = QNetwork,valueNet=VNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
+    elif args.Algorithm == "SoftQ":
+        agent = SoftQ.SoftQ(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
 
-        args.Algorithm = i
-
-        if args.Algorithm == "DDPG":
-            agent = DDPG.DDPG(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = replay_buffer,exploration = OUActionNoise)
-        elif args.Algorithm == "TD3":
-            agent = TD3.TD3(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
-        elif args.Algorithm == "SAC":
-            agent = SAC.SAC(args = args,policy = GaussianPolicyNetwork,critic = QNetwork,valueNet=VNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
-        elif args.Algorithm == "SoftQ":
-            agent = SoftQ.SoftQ(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
-
-        test(args,env,agent)
+    test(args,env,agent)

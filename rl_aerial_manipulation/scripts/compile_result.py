@@ -7,9 +7,8 @@ import sys
 import numpy as np
 import rclpy
 import matplotlib.pyplot as plt
-# sys.path.insert(0, '/Users/shaswatgarg/Documents/WaterlooMASc/StateSpaceUAV')
 
-from rl_aerial_manipulation.agent import DDPG,TD3,SAC,SoftQ,RCRL,SEditor,USL,SAAC,IDEA1,IDEA2,IDEA3,IDEA4
+from rl_aerial_manipulation.agent import DDPG,TD3,SAC,SoftQ
 from rl_aerial_manipulation.pytorch_model import GaussianPolicyNetwork, PolicyNetwork,QNetwork,VNetwork,PhasicPolicyNetwork,PhasicQNetwork,ConstraintNetwork,MultiplierNetwork,SafePolicyNetwork,RealNVP,FeatureExtractor
 
 from rl_aerial_manipulation.replay_buffer.Uniform_RB import ReplayBuffer,VisionReplayBuffer
@@ -17,23 +16,11 @@ from rl_aerial_manipulation.replay_buffer.Auxiliary_RB import AuxReplayBuffer
 from rl_aerial_manipulation.replay_buffer.Constraint_RB import ConstReplayBuffer,CostReplayBuffer
 
 from rl_aerial_manipulation.exploration.OUActionNoise import OUActionNoise
-from rl_aerial_manipulation.controllers.PID import CascadeController
-
-from rl_aerial_manipulation.environment.Quadrotor.QuadrotorObsEnv import QuadrotorObsEnv
-from rl_aerial_manipulation.environment.Quadrotor.BaseQuadrotorEnv import BaseQuadrotorEnv
-from rl_aerial_manipulation.environment.Quadrotor.QuadrotorTeachEnv import QuadrotorTeachEnv
-from rl_aerial_manipulation.environment.GazeboEnv.UAM.BaseGazeboUAMEnv import BaseGazeboUAMEnv
 from rl_aerial_manipulation.environment.GazeboEnv.Quadrotor.BaseGazeboUAVEnv import BaseGazeboUAVEnv
 from rl_aerial_manipulation.environment.GazeboEnv.Quadrotor.BaseGazeboUAVObsEnv import BaseGazeboUAVObsEnv
 from rl_aerial_manipulation.environment.GazeboEnv.Quadrotor.BaseGazeboUAVVelEnv import BaseGazeboUAVVelEnv
 from rl_aerial_manipulation.environment.GazeboEnv.Quadrotor.BaseGazeboUAVVelObsEnv import BaseGazeboUAVVelObsEnv
 from rl_aerial_manipulation.rl_aerial_manipulation.environment.GazeboEnv.Quadrotor.BaseGazeboUAVVelObsEnvSimp import BaseGazeboUAVVelObsEnvSimp
-from rl_aerial_manipulation.environment.GazeboEnv.UAM.BaseGazeboUAMPX4Env import BaseGazeboUAMPX4Env
-from rl_aerial_manipulation.environment.GazeboEnv.UAM.BaseGazeboUAMObsEnv import BaseGazeboUAMObsEnv
-from rl_aerial_manipulation.environment.PyBulletEnv.UAM.BaseUAMEnv import BaseUAMEnv
-from rl_aerial_manipulation.environment.PyBulletEnv.UAM.BaseUAMObsEnv import BaseUAMObsEnv
-from rl_aerial_manipulation.environment.PyBulletEnv.Quadrotor.BaseUAVEnv import BaseUAVEnv
-from rl_aerial_manipulation.teacher import TeacherController
 
 def build_parse():
 
@@ -114,74 +101,43 @@ def train(args,env,agent,teacher):
 
     best_reward = -np.inf
     total_reward_batch = []
-    total_safe_reward_batch = []
     avg_reward_list_batch = []
-    constraint_violation_batch = []
+
     os.makedirs("config/saves/rl_rewards/" +args.Environment, exist_ok=True)
     os.makedirs("config/saves/images/" +args.Environment, exist_ok=True)
 
     for i in range(args.n_batches):
+        
         print(f"TRAINING REPLICA : {i}")
+        
         agent.reset()
         total_reward = []
-        total_safe_reward = []
         avg_reward_list = []
-        constraint_violation = []
-        ep_len = 0
-        constraint_broke = 0
+
         for i in range(args.n_episodes):
             if teacher is not None:
                 teacher.generate_env_param()
             s = env.reset()
             reward = 0
-            safe_reward = 0
-            ep_len = 0
-            constraint_broke = 0
             # for _ in range(200):
             while True:
                 # s = s.reshape(1,s.shape[0])
-                if env.check_contact: 
-                    constraint_broke+=1
-                    env.max_time = 20
-                    action = -0.3 + 0.6*np.random.sample(size=(1,3))
-                else:
-                    action = agent.choose_action(s)
-                # action = agent.choose_action(s)
+                action = agent.choose_action(s)
                 next_state,rwd,done,info = env.step(action)
-                ep_len+=1
-                if info["constraint"] > 0:
-                    pass
-                    # constraint_broke+=1
-                if args.Algorithm == "RCRL":
-                    constraint = info["constraint"]
-                elif args.Algorithm == "SAAC" or args.Algorithm == "USL" or "IDEA" in args.Algorithm:
-                    constraint = info["safe_cost"]
-                # elif "IDEA" in args.Algorithm:
-                #     constraint = info["engage_reward"]
-                else:
-                    constraint = info["negative_safe_cost"]
 
-                agent.add(s,action,rwd,constraint,next_state,done)
+                agent.add(s,action,rwd,next_state,done)
                 agent.learn()
                 reward+=rwd
-                safe_reward+=constraint
                 # print(next_state)
                 if done:
-                    if teacher:
-                        teacher.record_train_episode(reward, ep_len)
-                        teacher.dump("config/saves/training_weights/"+args.Environment +"/teacher_weights/"+args.Algorithm+"_"+args.teach_alg+".pkl")
-                    if args.Algorithm == "IDEA1" or args.Algorithm == "IDEA3" or args.Algorithm == "IDEA4":
-                        agent.safe_policy_called = 0
                     break
                     
                 s = next_state
 
             total_reward.append(reward)
             avg_reward = np.mean(total_reward[-40:])
-            total_safe_reward.append(safe_reward)
-            avg_safe_reward = np.mean(total_safe_reward[-40:])
-            constraint_violation.append(constraint_broke/ep_len)
             avg_reward_list.append(avg_reward)
+
             if avg_reward>best_reward and i > 10:
                 best_reward=avg_reward
                 if args.save_rl_weights:
@@ -189,28 +145,18 @@ def train(args,env,agent,teacher):
                     agent.save(args.Environment)
 
             print("Episode * {} * Avg Reward is ==> {}".format(i, avg_reward))
-            print("Episode * {} * Constraint percentage is ==> {}".format(i,constraint_broke/ep_len))
-            print("Episode * {} * Avg Safe Reward is ==> {}".format(i, avg_safe_reward))
         
         total_reward_batch.append(total_reward)
-        total_safe_reward_batch.append(total_safe_reward)
-        constraint_violation_batch.append(constraint_violation)
         avg_reward_list_batch.append(avg_reward_list)
 
 
     if args.save_results:
-        list_cont_rwd = [avg_reward_list_batch,constraint_violation_batch,total_reward_batch]
+        list_cont_rwd = [avg_reward_list_batch,total_reward_batch]
         f = open("config/saves/rl_rewards/" +args.Environment + "/" + args.Algorithm + ".pkl","wb")
         pickle.dump(list_cont_rwd,f)
         f.close()
     
     plt.figure()
-    plt.subplot(211)
-    plt.title(f"Constraint Violation (%) - {args.Algorithm}")
-    plt.ylabel("Constraint Violation (%)")
-    plt.plot(constraint_violation)
-
-    plt.subplot(212)
     plt.title(f"Reward values - {args.Algorithm}")
     plt.xlabel("Iterations")
     plt.ylabel("Reward")
@@ -227,43 +173,20 @@ if __name__=="__main__":
     param_bound["n_obstacles"] = [0,args.max_obstacles]
     param_bound["obs_centre"] = [0,args.obs_region,3]
 
-    if "quadrotor_obs" == args.Environment:
-        env = QuadrotorObsEnv(controller=CascadeController)
-    elif "quadrotor_teach" == args.Environment:
-        env = QuadrotorTeachEnv(controller=CascadeController,load_obstacle=False)
-    elif "uam_gazebo" == args.Environment:
-        env = BaseGazeboUAMEnv(controller=None)
-    elif "uam_gazebo_obs" == args.Environment:
-        env = BaseGazeboUAMObsEnv(controller=CascadeController)
-    elif "uam_gazebo_px4" == args.Environment:
-        env = BaseGazeboUAMPX4Env(controller=CascadeController)
-    elif "uav_pybullet" == args.Environment:
-        env = BaseUAVEnv(controller=CascadeController)
-    elif "uam_pybullet" == args.Environment:
-        env = BaseUAMEnv(controller=CascadeController)
-    elif "uam_pybullet_obs" == args.Environment:
-        env = BaseUAMObsEnv(controller=CascadeController)
-    elif "uav_gazebo" == args.Environment:
-        env = BaseGazeboUAVEnv(controller=CascadeController)
+    if "uav_gazebo" == args.Environment:
+        env = BaseGazeboUAVEnv()
     elif "uav_obs_gazebo" == args.Environment:
-        env = BaseGazeboUAVObsEnv(controller=CascadeController)
+        env = BaseGazeboUAVObsEnv()
     elif "uav_vel_gazebo" == args.Environment:
-        env = BaseGazeboUAVVelEnv(controller=CascadeController)
+        env = BaseGazeboUAVVelEnv()
     elif "uav_vel_obs_gazebo" == args.Environment:
-        env = BaseGazeboUAVVelObsEnv(controller=CascadeController)
+        env = BaseGazeboUAVVelObsEnv()
     elif "uav_vel_obs_gazebo1" == args.Environment:
-        env = BaseGazeboUAVVelObsEnvSimp(controller=CascadeController)
-    else:
-        env = BaseQuadrotorEnv(controller=CascadeController)
+        env = BaseGazeboUAVVelObsEnvSimp()
 
-    if args.enable_vision:
-        vision_model = FeatureExtractor(None,None,12)
-        replay_buffer = VisionReplayBuffer
-    else:
-        vision_model = None
-        replay_buffer = ReplayBuffer
+    replay_buffer = ReplayBuffer
     
-    args.state_size = 363
+    args.state_size = env.state_size
     args.input_shape = env.state_size
     args.n_actions = env.action_space.shape[0]
     args.max_action = env.action_space.high
@@ -272,7 +195,7 @@ if __name__=="__main__":
     args.safe_min_action = -env.safe_action_max
 
     if args.Algorithm == "DDPG":
-        agent = DDPG.DDPG(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = replay_buffer,exploration = OUActionNoise,vision = vision_model)
+        agent = DDPG.DDPG(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = replay_buffer,exploration = OUActionNoise)
     elif args.Algorithm == "TD3":
         agent = TD3.TD3(args = args,policy = PolicyNetwork,critic = QNetwork,replayBuff = ReplayBuffer,exploration = OUActionNoise)
     elif args.Algorithm == "SAC":
@@ -296,9 +219,4 @@ if __name__=="__main__":
     elif args.Algorithm == "IDEA4":
         agent = IDEA4.IDEA4(args = args,policy = PolicyNetwork,critic = QNetwork,nvp=RealNVP,replayBuff = CostReplayBuffer,exploration = OUActionNoise)
 
-    if "teach" in args.Environment:
-        teacher = TeacherController.TeacherController(param_bound,env,args)
-    else:
-        teacher = None
-
-    train(args,env,agent,teacher)
+    train(args,env,agent)

@@ -24,7 +24,7 @@ class RRTStar:
         
         self.plot = Visualize(start,goal,graph.obs_boundary,graph.obs_circle)
 
-    def main(self,animate = True):
+    def main(self,animate = False):
 
         end_node = self.plan()
         path = self.extract_path(end_node)
@@ -47,7 +47,7 @@ class RRTStar:
 
             # if path between new_node and nearest node is collision free
             if not self.graph.CheckEdgeCollision(near_x,new_x):
-                print(new_x.get_coordinates())
+
                 new_x.parent = near_x
                 index_table = self.Near(new_x)
                 self.visited.append(new_x)
@@ -110,10 +110,10 @@ class RRTStar:
         if len(node_index) > 0:
             cost_list = [dist_list[i] + self.cost(self.visited[i]) for i in node_index
                          if not self.graph.CheckEdgeCollision(self.visited[i], self.goal)]
-            # print([self.graph.CheckEdgeCollision(self.visited[i], self.goal) for i in node_index])
-            # cost_list = [dist_list[i] + self.cost(self.visited[i]) for i in node_index]
             
-            print(cost_list)
+            if len(cost_list) == 0:
+                return None
+            
             return node_index[int(np.argmin(cost_list))]
 
         return len(self.visited) - 1

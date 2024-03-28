@@ -26,6 +26,7 @@ install(PROGRAMS
   src/main.py
   src/test_path_planning.py
   src/test_trajectory_planning.py
+  src/test_optimization_method.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

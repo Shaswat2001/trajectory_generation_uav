@@ -7,7 +7,6 @@ import sys
 import numpy as np
 import rclpy
 import matplotlib.pyplot as plt
-# sys.path.insert(0, '/Users/shaswatgarg/Documents/WaterlooMASc/StateSpaceUAV')
 
 from rl_aerial_manipulation.agent import DDPG,TD3,SAC,SoftQ
 from rl_aerial_manipulation.pytorch_model import GaussianPolicyNetwork, PolicyNetwork,QNetwork,VNetwork,PhasicPolicyNetwork,PhasicQNetwork,ConstraintNetwork,MultiplierNetwork,SafePolicyNetwork,RealNVP,FeatureExtractor

@@ -3,12 +3,12 @@ import matplotlib.patches as patches
 
 class Visualize:
 
-    def __init__(self,start,goal,obs_boundary,obs_rectangle,obs_circle):
+    def __init__(self,start,goal,obs_boundary,obs_circle):
         
         self.start = start
         self.goal = goal
         self.obs_bound = obs_boundary
-        self.obs_rectangle = obs_rectangle
+        # self.obs_rectangle = obs_rectangle
         self.obs_circle = obs_circle
 
         self.fig, self.ax = plt.subplots()
@@ -37,15 +37,15 @@ class Visualize:
                 )
             )
 
-        for (ox, oy, w, h) in self.obs_rectangle:
-            self.ax.add_patch(
-                patches.Rectangle(
-                    (ox, oy), w, h,
-                    edgecolor='black',
-                    facecolor='gray',
-                    fill=True
-                )
-            )
+        # for (ox, oy, w, h) in self.obs_rectangle:
+        #     self.ax.add_patch(
+        #         patches.Rectangle(
+        #             (ox, oy), w, h,
+        #             edgecolor='black',
+        #             facecolor='gray',
+        #             fill=True
+        #         )
+        #     )
 
         for (ox, oy, r) in self.obs_circle:
             self.ax.add_patch(
@@ -80,8 +80,8 @@ class Visualize:
 
     def shortest_path(self,path):
 
-        path_x = [node.x for node in path]
-        path_y = [node.y for node in path]
+        path_x = [node[0] for node in path]
+        path_y = [node[1] for node in path]
         plt.plot(path_x, path_y, linewidth='2', color="r")
 
         plt.scatter(self.start.x,self.start.y,color="magenta")

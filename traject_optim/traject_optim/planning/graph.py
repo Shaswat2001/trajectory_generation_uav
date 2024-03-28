@@ -126,24 +126,24 @@ class Graph(Map):
         parent=parent.get_coordinates()
         nbr=neighbour.get_coordinates()
 
-        for (ox,oy,w,h) in self.obs_rectangle:
+        # for (ox,oy,w,h) in self.obs_rectangle:
             
-            coorindates = [[ox-self.delta,oy-self.delta],
-                           [ox-self.delta,oy+self.delta+h],
-                           [ox+w+self.delta,oy+self.delta+h],
-                           [ox+w+self.delta,oy-self.delta]]
+        #     coorindates = [[ox-self.delta,oy-self.delta],
+        #                    [ox-self.delta,oy+self.delta+h],
+        #                    [ox+w+self.delta,oy+self.delta+h],
+        #                    [ox+w+self.delta,oy-self.delta]]
             
-            if self.isIntersect(parent,nbr,coorindates[0],coorindates[1]):
-                return True
+        #     if self.isIntersect(parent,nbr,coorindates[0],coorindates[1]):
+        #         return True
             
-            if self.isIntersect(parent,nbr,coorindates[1],coorindates[2]):
-                return True
+        #     if self.isIntersect(parent,nbr,coorindates[1],coorindates[2]):
+        #         return True
             
-            if self.isIntersect(parent,nbr,coorindates[2],coorindates[3]):
-                return True
+        #     if self.isIntersect(parent,nbr,coorindates[2],coorindates[3]):
+        #         return True
             
-            if self.isIntersect(parent,nbr,coorindates[3],coorindates[0]):
-                return True
+        #     if self.isIntersect(parent,nbr,coorindates[3],coorindates[0]):
+        #         return True
         
         for (ox,oy,w,h) in self.obs_boundary:
             
@@ -167,6 +167,7 @@ class Graph(Map):
         for (ox,oy,r) in self.obs_circle:
 
             if self.intersectCircle(parent,nbr,(ox,oy),r+self.delta):
+                # print("COLLIDED")
                 return True
 
         return False
@@ -185,16 +186,16 @@ class Graph(Map):
         # the coordinates of parent and neigbour node
         node=node.get_coordinates()
 
-        for (ox,oy,w,h) in self.obs_rectangle:
+        # for (ox,oy,w,h) in self.obs_rectangle:
             
-            coorindates = [[ox-self.delta,oy-self.delta],
-                           [ox-self.delta,oy+self.delta+h],
-                           [ox+w+self.delta,oy+self.delta+h],
-                           [ox+w+self.delta,oy-self.delta]]
+        #     coorindates = [[ox-self.delta,oy-self.delta],
+        #                    [ox-self.delta,oy+self.delta+h],
+        #                    [ox+w+self.delta,oy+self.delta+h],
+        #                    [ox+w+self.delta,oy-self.delta]]
             
-            if coorindates[0][0]<=node[0]<=coorindates[2][0] and coorindates[0][1]<=node[1]<=coorindates[2][1]:
+        #     if coorindates[0][0]<=node[0]<=coorindates[2][0] and coorindates[0][1]<=node[1]<=coorindates[2][1]:
 
-                return True
+        #         return True
 
         for (ox,oy,w,h) in self.obs_boundary:
             
@@ -214,14 +215,14 @@ class Graph(Map):
 
         return False
 
-    def get_obs_vertex(self):
-        delta = self.delta
-        obs_list = []
+    # def get_obs_vertex(self):
+    #     delta = self.delta
+    #     obs_list = []
 
-        for (ox, oy, w, h) in self.obs_rectangle:
-            vertex_list = [[ox - delta, oy - delta],
-                           [ox + w + delta, oy - delta],
-                           [ox + w + delta, oy + h + delta],
-                           [ox - delta, oy + h + delta]]
-            obs_list.extend(vertex_list)
-        return obs_list
+    #     for (ox, oy, w, h) in self.obs_rectangle:
+    #         vertex_list = [[ox - delta, oy - delta],
+    #                        [ox + w + delta, oy - delta],
+    #                        [ox + w + delta, oy + h + delta],
+    #                        [ox - delta, oy + h + delta]]
+    #         obs_list.extend(vertex_list)
+    #     return obs_list

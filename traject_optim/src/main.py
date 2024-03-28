@@ -120,7 +120,6 @@ if __name__=="__main__":
     print(position[0])
     print(position[-1])
 
-
     for i in range(position.shape[0]-1,0,-1):
 
         pos_px4 = np.array(position[i,0:3],dtype=np.float32)

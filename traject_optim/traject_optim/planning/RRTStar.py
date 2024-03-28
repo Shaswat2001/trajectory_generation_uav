@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class RRTStar:
 
-    def __init__(self,start,goal,graph,tree_size = 20,nodeDist = 3,goalDist = 1,steering_const = 1,gamma = 1):
+    def __init__(self,start,goal,graph,tree_size = 100,nodeDist = 1,goalDist = 1,steering_const = 1,gamma = 1):
 
         self.start = start
         self.goal = goal
@@ -22,9 +22,9 @@ class RRTStar:
         self.visited = [self.start]
         self.path = []
         
-        self.plot = Visualize(start,goal,graph.obs_boundary,graph.obs_rectangle,graph.obs_circle)
+        self.plot = Visualize(start,goal,graph.obs_boundary,graph.obs_circle)
 
-    def main(self,animate = False):
+    def main(self,animate = True):
 
         end_node = self.plan()
         path = self.extract_path(end_node)
@@ -47,6 +47,7 @@ class RRTStar:
 
             # if path between new_node and nearest node is collision free
             if not self.graph.CheckEdgeCollision(near_x,new_x):
+                print(new_x.get_coordinates())
                 new_x.parent = near_x
                 index_table = self.Near(new_x)
                 self.visited.append(new_x)
@@ -109,6 +110,10 @@ class RRTStar:
         if len(node_index) > 0:
             cost_list = [dist_list[i] + self.cost(self.visited[i]) for i in node_index
                          if not self.graph.CheckEdgeCollision(self.visited[i], self.goal)]
+            # print([self.graph.CheckEdgeCollision(self.visited[i], self.goal) for i in node_index])
+            # cost_list = [dist_list[i] + self.cost(self.visited[i]) for i in node_index]
+            
+            print(cost_list)
             return node_index[int(np.argmin(cost_list))]
 
         return len(self.visited) - 1
@@ -144,7 +149,6 @@ class RRTStar:
         #return closest node
         return list(cost.keys())[0]
     
-
     def cost(self,node):
 
         cost = 0
@@ -164,7 +168,6 @@ class RRTStar:
 
         return cost_node+line_length
         
-
     def Near(self,new_node):
 
         V = len(self.visited) + 1
